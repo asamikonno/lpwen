@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<!-- saved from url=(0106)file:///C:/Users/User/Documents/%E6%8E%83%E5%9C%B0%E5%8D%80%E5%9F%9F%E8%BC%AA%E5%80%BC%E8%A1%A8/index.html -->
+<html lang="zh-Hant"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>掃地區域輪值表</title>
+  <style>
+    :root {
+      --bg: #f4f6f9;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --primary: #2563eb;
+      --primary-soft: #eff6ff;
+      --accent: #059669;
+      --accent-soft: #ecfdf5;
+      --warn: #d97706;
+      --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Microsoft JhengHei", "PingFang TC", "Noto Sans TC", sans-serif;
+      background: linear-gradient(180deg, #eef2ff 0%, var(--bg) 220px);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 32px 20px 48px;
+    }
+
+    header {
+      margin-bottom: 24px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 2rem;
+      letter-spacing: 0.02em;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      margin: 0;
+    }
+
+    .week-banner {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 18px 20px;
+      box-shadow: var(--shadow);
+      margin-bottom: 24px;
+    }
+
+    .week-info strong {
+      display: block;
+      font-size: 1.15rem;
+      color: var(--primary);
+    }
+
+    .week-info span {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    button, .btn {
+      appearance: none;
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--text);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font: inherit;
+      cursor: pointer;
+      transition: 0.15s ease;
+    }
+
+    button:hover, .btn:hover {
+      border-color: #cbd5e1;
+      transform: translateY(-1px);
+    }
+
+    button.primary {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+    }
+
+    button.primary:hover {
+      background: #1d4ed8;
+    }
+
+    button.success {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: var(--shadow);
+      margin-bottom: 20px;
+    }
+
+    .card h2 {
+      margin: 0 0 6px;
+      font-size: 1.25rem;
+    }
+
+    .card .desc {
+      margin: 0 0 16px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      border-bottom: 1px solid var(--border);
+      padding: 12px 10px;
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    th {
+      background: #f8fafc;
+      font-weight: 700;
+      color: #334155;
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    tbody tr:hover td {
+      background: #fafafa;
+    }
+
+    .current-row td {
+      background: var(--primary-soft) !important;
+    }
+
+    .fixed-row td {
+      background: var(--accent-soft);
+    }
+
+    input[type="text"], input[type="date"] {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 10px;
+      font: inherit;
+      background: #fff;
+    }
+
+    input[type="text"]:focus, input[type="date"]:focus {
+      outline: 2px solid #bfdbfe;
+      border-color: #93c5fd;
+    }
+
+    .edit-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+
+    .hint {
+      margin-top: 12px;
+      font-size: 0.88rem;
+      color: var(--muted);
+    }
+
+    .preview-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+    }
+
+    .preview-card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background: #fafafa;
+    }
+
+    .preview-card h3 {
+      margin: 0 0 8px;
+      font-size: 0.95rem;
+      color: var(--primary);
+    }
+
+    .preview-card ul {
+      margin: 0;
+      padding-left: 18px;
+      font-size: 0.88rem;
+    }
+
+    .preview-card li {
+      margin-bottom: 4px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      background: #fef3c7;
+      color: var(--warn);
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+
+    .hidden { display: none !important; }
+
+    .status {
+      margin-top: 10px;
+      min-height: 1.2em;
+      color: var(--accent);
+      font-size: 0.9rem;
+    }
+
+    @media print {
+      body { background: #fff; }
+      .toolbar, .edit-actions, .preview-section, .hint, .status { display: none !important; }
+      .card, .week-banner { box-shadow: none; break-inside: avoid; }
+    }
+
+    @media (max-width: 640px) {
+      h1 { font-size: 1.6rem; }
+      th, td { padding: 10px 8px; font-size: 0.92rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>掃地區域輪值表</h1>
+      <p class="subtitle">每週日～週六自動輪替，固定區域不變動</p>
+    </header>
+
+    <section class="week-banner">
+      <div class="week-info">
+        <strong id="currentWeekLabel">本週輪值（基準週）</strong>
+        <span id="currentWeekRange">2026/07/12（日）～ 2026/07/18（六）</span>
+      </div>
+      <div class="toolbar">
+        <button type="button" id="toggleEditBtn">編輯內容</button>
+        <button type="button" id="printBtn">列印</button>
+        <button type="button" id="resetBtn">還原預設</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>輪值區域 <span class="badge">每週自動輪替</span></h2>
+      <p class="desc">人員每週往下移動一個區域，最後一區的人員下週回到第一區。</p>
+      <div id="viewMode" class="">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 45%">區域</th>
+              <th>人員</th>
+            </tr>
+          </thead>
+          <tbody id="rotationViewBody">
+        <tr>
+          <td>張小姐區(第一道)</td>
+          <td>藍婉麗</td>
+        </tr>
+      
+        <tr>
+          <td>內勤區(第二道)</td>
+          <td>賴秀禎</td>
+        </tr>
+      
+        <tr>
+          <td>業務區(第三道)</td>
+          <td>蘇桂玉</td>
+        </tr>
+      
+        <tr>
+          <td>總經理區</td>
+          <td>陳佳蓮</td>
+        </tr>
+      
+        <tr>
+          <td>出版行銷區(大桌)</td>
+          <td>范名慧</td>
+        </tr>
+      
+        <tr>
+          <td>N1及門口區</td>
+          <td>洪子琪</td>
+        </tr>
+      
+        <tr>
+          <td>N2區</td>
+          <td>劉星柔</td>
+        </tr>
+      
+        <tr>
+          <td>大會議室</td>
+          <td>徐兆怜</td>
+        </tr>
+      
+        <tr>
+          <td>小會議室</td>
+          <td>劉佩文</td>
+        </tr>
+      </tbody>
+        </table>
+      </div>
+      <div id="editMode" class="hidden">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 45%">區域</th>
+              <th>人員（基準週）</th>
+            </tr>
+          </thead>
+          <tbody id="rotationEditBody">
+        <tr>
+          <td><input type="text" data-kind="rotation-area" data-index="0" value="張小姐區(第一道)"></td>
+          <td><input type="text" data-kind="rotation-person" data-index="0" value="藍婉麗"></td>
+        </tr>
+      
+        <tr>
+          <td><input type="text" data-kind="rotation-area" data-index="1" value="內勤區(第二道)"></td>
+          <td><input type="text" data-kind="rotation-person" data-index="1" value="賴秀禎"></td>
+        </tr>
+      
+        <tr>
+          <td><input type="text" data-kind="rotation-area" data-index="2" value="業務區(第三道)"></td>
+          <td><input type="text" data-kind="rotation-person" data-index="2" value="蘇桂玉"></td>
+        </tr>
+      
+        <tr>
+          <td><input type="text" data-kind="rotation-area" data-index="3" value="總經理區"></td>
+          <td><input type="text" data-kind="rotation-person" data-index="3" value="陳佳蓮"></td>
+        </tr>
+      
+        <tr>
+          <td><input type="text" data-kind="rotation-area" data-index="4" value="出版行銷區(大桌)"></td>
+          <td><input type="text" data-kind="rotation-person" data-index="4" value="范名慧"></td>
+        </tr>
+      
+        <tr>
+          <td><input type="text" data-kind="rotation-area" data-index="5" value="N1及門口區"></td>
+          <td><input type="text" data-kind="rotation-person" data-index="5" value="洪子琪"></td>
+        </tr>
+      
+        <tr>
+          <td><input type="text" data-kind="rotation-area" data-index="6" value="N2區"></td>
+          <td><input type="text" data-kind="rotation-person" data-index="6" value="劉星柔"></td>
+        </tr>
+      
+        <tr>
+          <td><input type="text" data-kind="rotation-area" data-index="7" value="大會議室"></td>
+          <td><input type="text" data-kind="rotation-person" data-index="7" value="徐兆怜"></td>
+        </tr>
+      
+        <tr>
+          <td><input type="text" data-kind="rotation-area" data-index="8" value="小會議室"></td>
+          <td><input type="text" data-kind="rotation-person" data-index="8" value="劉佩文"></td>
+        </tr>
+      </tbody>
+        </table>
+        <div class="edit-actions">
+          <label>基準週起始日（週日）
+            <input type="date" id="referenceDate">
+          </label>
+          <button type="button" class="success" id="saveBtn">儲存變更</button>
+          <button type="button" id="addRotationRowBtn">新增列</button>
+          <button type="button" id="cancelEditBtn">取消</button>
+        </div>
+        <p class="hint">「基準週」即下方人員對應區域的起始週。之後每週人員自動往下輪替。</p>
+      </div>
+      <div class="status" id="statusMsg"></div>
+    </section>
+
+    <section class="card">
+      <h2>固定區域 <span class="badge">不輪替</span></h2>
+      <p class="desc">以下區域人員固定，不隨週次變動。</p>
+      <div id="fixedViewMode" class="">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 45%">區域</th>
+              <th>人員</th>
+            </tr>
+          </thead>
+          <tbody id="fixedViewBody">
+        <tr class="fixed-row">
+          <td>茶水間及櫃台</td>
+          <td>葉智成</td>
+        </tr>
+      
+        <tr class="fixed-row">
+          <td>外圍陽台</td>
+          <td>劉玉芬、陳正昌</td>
+        </tr>
+      
+        <tr class="fixed-row">
+          <td>拖地</td>
+          <td>吳美慧、葉語婕</td>
+        </tr>
+      
+        <tr class="fixed-row">
+          <td>邁新</td>
+          <td>陳曉易、車昱均</td>
+        </tr>
+      </tbody>
+        </table>
+      </div>
+      <div id="fixedEditMode" class="hidden">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 45%">區域</th>
+              <th>人員</th>
+            </tr>
+          </thead>
+          <tbody id="fixedEditBody">
+        <tr>
+          <td><input type="text" data-kind="fixed-area" data-index="0" value="茶水間及櫃台"></td>
+          <td><input type="text" data-kind="fixed-person" data-index="0" value="葉智成"></td>
+        </tr>
+      
+        <tr>
+          <td><input type="text" data-kind="fixed-area" data-index="1" value="外圍陽台"></td>
+          <td><input type="text" data-kind="fixed-person" data-index="1" value="劉玉芬、陳正昌"></td>
+        </tr>
+      
+        <tr>
+          <td><input type="text" data-kind="fixed-area" data-index="2" value="拖地"></td>
+          <td><input type="text" data-kind="fixed-person" data-index="2" value="吳美慧、葉語婕"></td>
+        </tr>
+      
+        <tr>
+          <td><input type="text" data-kind="fixed-area" data-index="3" value="邁新"></td>
+          <td><input type="text" data-kind="fixed-person" data-index="3" value="陳曉易、車昱均"></td>
+        </tr>
+      </tbody>
+        </table>
+        <div class="edit-actions">
+          <button type="button" id="addFixedRowBtn">新增固定區域</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="card preview-section">
+      <h2>未來四週預覽</h2>
+      <p class="desc">依目前設定自動計算。</p>
+      <div class="preview-grid" id="previewGrid">
+          <div class="preview-card">
+            <h3>本週<br><small style="color:#6b7280;font-weight:normal">2026/07/12（日）～ 2026/07/18（六）</small></h3>
+            <ul>
+              <li>張小姐區(第一道)：藍婉麗</li><li>內勤區(第二道)：賴秀禎</li><li>業務區(第三道)：蘇桂玉</li><li>總經理區：陳佳蓮</li><li>出版行銷區(大桌)：范名慧</li><li>N1及門口區：洪子琪</li><li>N2區：劉星柔</li><li>大會議室：徐兆怜</li><li>小會議室：劉佩文</li>
+            </ul>
+          </div>
+        
+          <div class="preview-card">
+            <h3>第 2 週<br><small style="color:#6b7280;font-weight:normal">2026/07/19（日）～ 2026/07/25（六）</small></h3>
+            <ul>
+              <li>張小姐區(第一道)：劉佩文</li><li>內勤區(第二道)：藍婉麗</li><li>業務區(第三道)：賴秀禎</li><li>總經理區：蘇桂玉</li><li>出版行銷區(大桌)：陳佳蓮</li><li>N1及門口區：范名慧</li><li>N2區：洪子琪</li><li>大會議室：劉星柔</li><li>小會議室：徐兆怜</li>
+            </ul>
+          </div>
+        
+          <div class="preview-card">
+            <h3>第 3 週<br><small style="color:#6b7280;font-weight:normal">2026/07/26（日）～ 2026/08/01（六）</small></h3>
+            <ul>
+              <li>張小姐區(第一道)：徐兆怜</li><li>內勤區(第二道)：劉佩文</li><li>業務區(第三道)：藍婉麗</li><li>總經理區：賴秀禎</li><li>出版行銷區(大桌)：蘇桂玉</li><li>N1及門口區：陳佳蓮</li><li>N2區：范名慧</li><li>大會議室：洪子琪</li><li>小會議室：劉星柔</li>
+            </ul>
+          </div>
+        
+          <div class="preview-card">
+            <h3>第 4 週<br><small style="color:#6b7280;font-weight:normal">2026/08/02（日）～ 2026/08/08（六）</small></h3>
+            <ul>
+              <li>張小姐區(第一道)：劉星柔</li><li>內勤區(第二道)：徐兆怜</li><li>業務區(第三道)：劉佩文</li><li>總經理區：藍婉麗</li><li>出版行銷區(大桌)：賴秀禎</li><li>N1及門口區：蘇桂玉</li><li>N2區：陳佳蓮</li><li>大會議室：范名慧</li><li>小會議室：洪子琪</li>
+            </ul>
+          </div>
+        </div>
+    </section>
+  </div>
+
+  <script>
+    const STORAGE_KEY = "cleaning-rotation-schedule-v1";
+
+    const DEFAULT_DATA = {
+      referenceWeekStart: getSunday(new Date()).toISOString().slice(0, 10),
+      rotation: [
+        { area: "張小姐區(第一道)", person: "藍婉麗" },
+        { area: "內勤區(第二道)", person: "賴秀禎" },
+        { area: "業務區(第三道)", person: "蘇桂玉" },
+        { area: "總經理區", person: "陳佳蓮" },
+        { area: "出版行銷區(大桌)", person: "范名慧" },
+        { area: "N1及門口區", person: "洪子琪" },
+        { area: "N2區", person: "劉星柔" },
+        { area: "大會議室", person: "徐兆怜" },
+        { area: "小會議室", person: "劉佩文" }
+      ],
+      fixed: [
+        { area: "茶水間及櫃台", person: "葉智成" },
+        { area: "外圍陽台", person: "劉玉芬、陳正昌" },
+        { area: "拖地", person: "吳美慧、葉語婕" },
+        { area: "邁新", person: "陳曉易、車昱均" }
+      ]
+    };
+
+    let data = loadData();
+    let editing = false;
+
+    function loadData() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          return {
+            referenceWeekStart: parsed.referenceWeekStart || DEFAULT_DATA.referenceWeekStart,
+            rotation: Array.isArray(parsed.rotation) && parsed.rotation.length ? parsed.rotation : DEFAULT_DATA.rotation,
+            fixed: Array.isArray(parsed.fixed) && parsed.fixed.length ? parsed.fixed : DEFAULT_DATA.fixed
+          };
+        }
+      } catch (_) {}
+      return structuredClone(DEFAULT_DATA);
+    }
+
+    function saveData() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    }
+
+    function getSunday(date) {
+      const d = new Date(date);
+      d.setHours(0, 0, 0, 0);
+      const day = d.getDay();
+      d.setDate(d.getDate() - day);
+      return d;
+    }
+
+    function addDays(date, days) {
+      const d = new Date(date);
+      d.setDate(d.getDate() + days);
+      return d;
+    }
+
+    function formatDate(date) {
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, "0");
+      const d = String(date.getDate()).padStart(2, "0");
+      return `${y}/${m}/${d}`;
+    }
+
+    function formatWeekRange(sunday) {
+      const saturday = addDays(sunday, 6);
+      return `${formatDate(sunday)}（日）～ ${formatDate(saturday)}（六）`;
+    }
+
+    function weekOffsetFromReference(targetSunday, referenceSunday) {
+      const msPerWeek = 7 * 24 * 60 * 60 * 1000;
+      return Math.round((targetSunday - referenceSunday) / msPerWeek);
+    }
+
+    function getRotatedSchedule(weekOffset) {
+      const n = data.rotation.length;
+      if (!n) return [];
+      const normalized = ((weekOffset % n) + n) % n;
+      return data.rotation.map((item, index) => ({
+        area: item.area,
+        person: data.rotation[(index - normalized + n) % n].person
+      }));
+    }
+
+    function renderView() {
+      const today = new Date();
+      const currentSunday = getSunday(today);
+      const referenceSunday = getSunday(new Date(data.referenceWeekStart + "T00:00:00"));
+      const offset = weekOffsetFromReference(currentSunday, referenceSunday);
+      const schedule = getRotatedSchedule(offset);
+
+      document.getElementById("currentWeekLabel").textContent = offset === 0 ? "本週輪值（基準週）" : `本週輪值（第 ${offset + 1} 週）`;
+      document.getElementById("currentWeekRange").textContent = formatWeekRange(currentSunday);
+
+      const viewBody = document.getElementById("rotationViewBody");
+      viewBody.innerHTML = schedule.map((row, i) => `
+        <tr>
+          <td>${escapeHtml(row.area)}</td>
+          <td>${escapeHtml(row.person)}</td>
+        </tr>
+      `).join("");
+
+      const fixedBody = document.getElementById("fixedViewBody");
+      fixedBody.innerHTML = data.fixed.map(row => `
+        <tr class="fixed-row">
+          <td>${escapeHtml(row.area)}</td>
+          <td>${escapeHtml(row.person)}</td>
+        </tr>
+      `).join("");
+
+      renderPreview(currentSunday, referenceSunday);
+    }
+
+    function renderPreview(currentSunday, referenceSunday) {
+      const grid = document.getElementById("previewGrid");
+      const cards = [];
+
+      for (let w = 0; w < 4; w++) {
+        const sunday = addDays(currentSunday, w * 7);
+        const offset = weekOffsetFromReference(sunday, referenceSunday);
+        const schedule = getRotatedSchedule(offset);
+        const title = w === 0 ? "本週" : `第 ${w + 1} 週`;
+        cards.push(`
+          <div class="preview-card">
+            <h3>${title}<br><small style="color:#6b7280;font-weight:normal">${formatWeekRange(sunday)}</small></h3>
+            <ul>
+              ${schedule.map(row => `<li>${escapeHtml(row.area)}：${escapeHtml(row.person)}</li>`).join("")}
+            </ul>
+          </div>
+        `);
+      }
+
+      grid.innerHTML = cards.join("");
+    }
+
+    function renderEditTables() {
+      const rotationBody = document.getElementById("rotationEditBody");
+      rotationBody.innerHTML = data.rotation.map((row, index) => `
+        <tr>
+          <td><input type="text" data-kind="rotation-area" data-index="${index}" value="${escapeAttr(row.area)}"></td>
+          <td><input type="text" data-kind="rotation-person" data-index="${index}" value="${escapeAttr(row.person)}"></td>
+        </tr>
+      `).join("");
+
+      const fixedBody = document.getElementById("fixedEditBody");
+      fixedBody.innerHTML = data.fixed.map((row, index) => `
+        <tr>
+          <td><input type="text" data-kind="fixed-area" data-index="${index}" value="${escapeAttr(row.area)}"></td>
+          <td><input type="text" data-kind="fixed-person" data-index="${index}" value="${escapeAttr(row.person)}"></td>
+        </tr>
+      `).join("");
+
+      document.getElementById("referenceDate").value = data.referenceWeekStart;
+    }
+
+    function setEditMode(on) {
+      editing = on;
+      document.getElementById("viewMode").classList.toggle("hidden", on);
+      document.getElementById("editMode").classList.toggle("hidden", !on);
+      document.getElementById("fixedViewMode").classList.toggle("hidden", on);
+      document.getElementById("fixedEditMode").classList.toggle("hidden", !on);
+      document.getElementById("toggleEditBtn").textContent = on ? "返回檢視" : "編輯內容";
+      if (on) renderEditTables();
+      else renderView();
+    }
+
+    function collectEditValues() {
+      const rotation = [];
+      data.rotation.forEach((_, index) => {
+        const area = document.querySelector(`[data-kind="rotation-area"][data-index="${index}"]`).value.trim();
+        const person = document.querySelector(`[data-kind="rotation-person"][data-index="${index}"]`).value.trim();
+        rotation.push({ area, person });
+      });
+
+      const fixed = [];
+      data.fixed.forEach((_, index) => {
+        const area = document.querySelector(`[data-kind="fixed-area"][data-index="${index}"]`).value.trim();
+        const person = document.querySelector(`[data-kind="fixed-person"][data-index="${index}"]`).value.trim();
+        fixed.push({ area, person });
+      });
+
+      return {
+        referenceWeekStart: document.getElementById("referenceDate").value,
+        rotation,
+        fixed
+      };
+    }
+
+    function showStatus(msg) {
+      const el = document.getElementById("statusMsg");
+      el.textContent = msg;
+      setTimeout(() => { if (el.textContent === msg) el.textContent = ""; }, 2500);
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function escapeAttr(str) {
+      return String(str).replace(/"/g, "&quot;");
+    }
+
+    document.getElementById("toggleEditBtn").addEventListener("click", () => setEditMode(!editing));
+    document.getElementById("cancelEditBtn").addEventListener("click", () => setEditMode(false));
+
+    document.getElementById("saveBtn").addEventListener("click", () => {
+      const next = collectEditValues();
+      if (!next.referenceWeekStart) {
+        alert("請設定基準週起始日（週日）。");
+        return;
+      }
+      if (next.rotation.some(r => !r.area || !r.person)) {
+        alert("輪值區域的「區域」與「人員」皆需填寫。");
+        return;
+      }
+      if (next.fixed.some(r => !r.area || !r.person)) {
+        alert("固定區域的「區域」與「人員」皆需填寫。");
+        return;
+      }
+
+      const refDay = new Date(next.referenceWeekStart + "T00:00:00").getDay();
+      if (refDay !== 0) {
+        if (!confirm("基準日不是週日，系統仍會自動對齊到該週的週日。確定要儲存嗎？")) return;
+        next.referenceWeekStart = getSunday(new Date(next.referenceWeekStart + "T00:00:00")).toISOString().slice(0, 10);
+      }
+
+      data = next;
+      saveData();
+      setEditMode(false);
+      showStatus("已儲存變更");
+    });
+
+    document.getElementById("addRotationRowBtn").addEventListener("click", () => {
+      data.rotation.push({ area: "新區域", person: "新人員" });
+      renderEditTables();
+    });
+
+    document.getElementById("addFixedRowBtn").addEventListener("click", () => {
+      data.fixed.push({ area: "新固定區域", person: "人員" });
+      renderEditTables();
+    });
+
+    document.getElementById("printBtn").addEventListener("click", () => window.print());
+
+    document.getElementById("resetBtn").addEventListener("click", () => {
+      if (!confirm("確定要還原為預設內容嗎？目前的自訂資料將被清除。")) return;
+      data = structuredClone(DEFAULT_DATA);
+      data.referenceWeekStart = getSunday(new Date()).toISOString().slice(0, 10);
+      saveData();
+      setEditMode(false);
+      showStatus("已還原預設");
+    });
+
+    renderView();
+  </script>
+
+
+</body></html>
