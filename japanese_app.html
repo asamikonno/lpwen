@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>日文學習助手 (N3~N5)</title>
+    <style>
+        :root {
+            --primary-color: #4a90e2;
+            --success-color: #2ecc71;
+            --warning-color: #e67e22;
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 700px;
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .tab-btn {
+            padding: 10px 20px;
+            border: none;
+            background: none;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #666;
+        }
+
+        .tab-btn.active {
+            color: var(--primary-color);
+            border-bottom: 3px solid var(--primary-color);
+        }
+
+        .view-section { display: none; }
+        .view-section.active { display: block; }
+
+        /* 單字卡風格 */
+        .word-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background-color: #fafafa;
+        }
+
+        .word-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .kanji { font-size: 32px; font-weight: bold; color: #333; }
+        .reading { font-size: 20px; color: #666; }
+        .badge { background: #e0e0e0; padding: 3px 8px; border-radius: 4px; font-size: 12px; }
+
+        /* 發音按鈕樣式 */
+        .audio-btn {
+            background-color: #e8f4fd;
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            font-size: 14px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            margin-left: 5px;
+        }
+        .audio-btn:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        .audio-btn-sm {
+            width: 26px;
+            height: 26px;
+            font-size: 12px;
+        }
+
+        .section-title { font-weight: bold; margin-top: 15px; color: var(--primary-color); }
+        .example-list { padding-left: 20px; margin: 5px 0; }
+        .example-item { margin-bottom: 12px; }
+        .grammar-note { font-size: 13px; color: #666; font-style: italic; }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        button.action-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 15px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-master { background-color: var(--success-color); color: white; }
+        .btn-review { background-color: var(--warning-color); color: white; }
+        .btn-submit { background-color: var(--primary-color); color: white; margin-top: 10px; }
+        .btn-secondary { background-color: #7f8c8d; color: white; }
+
+        /* 測驗區風格 */
+        .quiz-container { margin-top: 15px; }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        .feedback { margin-top: 10px; font-weight: bold; }
+
+        /* 統計與備份區 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .stat-box {
+            background: #f0f4f8;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stat-num { font-size: 24px; font-weight: bold; color: var(--primary-color); }
+
+        .backup-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px dashed #ddd;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="nav-tabs">
+        <button class="tab-btn active" onclick="switchTab('learn', this)">今日學習</button>
+        <button class="tab-btn" onclick="switchTab('quiz', this)">隨機測驗</button>
+        <button class="tab-btn" onclick="switchTab('stats', this)">學習狀況與備份</button>
+    </div>
+
+    <!-- 1. 每日學習區 -->
+    <div id="learn-section" class="view-section active">
+        <div id="learning-content">
+            <!-- 動態渲染單字卡片 -->
+        </div>
+    </div>
+
+    <!-- 2. 隨機測驗區 -->
+    <div id="quiz-section" class="view-section">
+        <div class="quiz-container" id="quiz-content">
+            <!-- 動態渲染測驗內容 -->
+        </div>
+    </div>
+
+    <!-- 3. 學習狀況與資料匯入匯出區 -->
+    <div id="stats-section" class="view-section">
+        <h3>📊 學習統計</h3>
+        <div class="stats-grid">
+            <div class="stat-box">
+                <div>今天學習單字數</div>
+                <div class="stat-num" id="stat-today">0</div>
+            </div>
+            <div class="stat-box">
+                <div>累積已掌握單字</div>
+                <div class="stat-num" id="stat-mastered">0</div>
+            </div>
+        </div>
+
+        <div class="backup-section">
+            <h3>💾 資料備份與跨電腦同步</h3>
+            <p style="font-size: 14px; color: #666;">你可以將學習紀錄匯出成檔案，帶到其他電腦上匯入接續學習。</p>
+            <div class="btn-group">
+                <button class="action-btn btn-secondary" onclick="exportData()">📥 匯出學習紀錄</button>
+                <button class="action-btn btn-secondary" onclick="document.getElementById('import-file').click()">📤 匯入學習紀錄</button>
+                <input type="file" id="import-file" style="display: none;" accept=".json" onchange="importData(event)">
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// 預設 N3~N5 題庫資料
+const sampleDatabase = [
+    {
+        id: 1, kanji: "食べる", reading: "たべる", accent: "[2]", type: "動詞 (グループ1)", level: "N5",
+        verbs: { dict: "食べる", masu: "食べます", te: "食べて", nai: "食べない", ta: "食べた" },
+        examples: [
+            { jp: "朝ご飯を食べる。", zh: "吃早餐。", grammar: "名詞 + を + 動詞：表示動作的對象" },
+            { jp: "一緒にラーメンをたべませんか。", zh: "要不要一起吃拉麵？", grammar: "動詞ます形去ます + ませんか：表示邀約" },
+            { jp: "もう昼ご飯を食べました。", zh: "已經吃過午飯了。", grammar: "動詞た形/ました：表示過去完成" }
+        ]
+    },
+    {
+        id: 2, kanji: "高い", reading: "たかい", accent: "[2]", type: "い形容詞", level: "N5",
+        synonyms: ["高價 (高価)"], antonyms: ["安物", "低い"],
+        examples: [
+            { jp: "この本は高いです。", zh: "這本書很貴。", grammar: "形容詞直接接です做句尾" },
+            { jp: "富士山は高い山です。", zh: "富士山是高山。", grammar: "い形容詞直接修飾名詞" },
+            { jp: "値段が高すぎる。", zh: "價格太貴了。", grammar: "形容詞去い + すぎる：表示過度" }
+        ]
+    },
+    {
+        id: 3, kanji: "散歩", reading: "さんぽ", accent: "[0]", type: "名詞 / する動詞", level: "N4",
+        verbs: { dict: "散歩する", masu: "散歩します", te: "散歩して", nai: "散歩しない", ta: "散歩した" },
+        examples: [
+            { jp: "公園を散歩する。", zh: "在公園散歩。", grammar: "經過的地點 + を + 散步する" },
+            { jp: "毎朝散歩することにしている。", zh: "習慣每天早上散步。", grammar: "V-る + ことにしている：表示習慣/決定" },
+            { jp: "犬と散歩に行きます。", zh: "和狗一起去散步。", grammar: "目的 + に行きます：去實施某動作" }
+        ]
+    }
+];
+
+// 本地存儲（State Management）
+let userStats = { history: {}, mastered: [], quizWeights: {} };
+
+try {
+    const saved = localStorage.getItem('jp_userStats');
+    if (saved) userStats = JSON.parse(saved);
+} catch (e) {
+    console.error("LocalStorage error:", e);
+}
+
+let currentDailyQueue = [];
+let currentWordIndex = 0;
+
+// 🔊 語音朗讀功能 (Web Speech API)
+function speak(text, rate = 0.9) {
+    if (!('speechSynthesis' in window)) {
+        alert('您的瀏覽器不支援語音朗讀功能！');
+        return;
+    }
+    try {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'ja-JP';
+        utterance.rate = rate;
+        window.speechSynthesis.speak(utterance);
+    } catch (e) {
+        console.error("Speech synthesis error:", e);
+    }
+}
+
+function init() {
+    checkDailyReset();
+    loadDailyWords();
+    renderWordCard();
+    updateStatsUI();
+}
+
+function checkDailyReset() {
+    const today = new Date().toISOString().split('T')[0];
+    if (!userStats.history[today]) {
+        userStats.history[today] = 0;
+        saveData();
+    }
+}
+
+function saveData() {
+    try {
+        localStorage.setItem('jp_userStats', JSON.stringify(userStats));
+    } catch (e) {
+        console.error("Save error:", e);
+    }
+}
+
+function loadDailyWords() {
+    const available = sampleDatabase.filter(item => !userStats.mastered.includes(item.id));
+    currentDailyQueue = available.slice(0, 5);
+}
+
+function renderWordCard() {
+    const container = document.getElementById('learning-content');
+    if (!container) return;
+    
+    if (currentWordIndex >= currentDailyQueue.length || currentDailyQueue.length === 0) {
+        container.innerHTML = `<h3>🎉 今日的單字已學習完畢！</h3><p>請前往「隨機測驗」複習，或是明天再來！</p>`;
+        return;
+    }
+
+    const item = currentDailyQueue[currentWordIndex];
+
+    let extraInfo = '';
+    if (item.verbs) {
+        extraInfo += `
+            <div class="section-title">🔄 動詞變化</div>
+            <div>原形: ${item.verbs.dict} | ます形: ${item.verbs.masu} | て形: ${item.verbs.te} | ない形: ${item.verbs.nai} | た形: ${item.verbs.ta}</div>
+        `;
+    }
+    if (item.synonyms || item.antonyms) {
+        extraInfo += `<div class="section-title">🔍 相關詞彙</div>`;
+        if (item.synonyms) extraInfo += `<div>相似詞: ${item.synonyms.join(', ')}</div>`;
+        if (item.antonyms) extraInfo += `<div>相反詞: ${item.antonyms.join(', ')}</div>`;
+    }
+
+    let examplesHTML = item.examples.map(ex => {
+        const cleanJp = ex.jp.replace(/'/g, "\\'");
+        return `
+            <li class="example-item">
+                <div>
+                    <strong>${ex.jp}</strong> 
+                    <button class="audio-btn audio-btn-sm" onclick="speak('${cleanJp}')">🔊</button>
+                    (${ex.zh})
+                </div>
+                <div class="grammar-note">💡 文法說明：${ex.grammar}</div>
+            </li>
+        `;
+    }).join('');
+
+    const cleanKanji = item.kanji.replace(/'/g, "\\'");
+
+    container.innerHTML = `
+        <div class="word-card">
+            <div class="word-header">
+                <span class="kanji">${item.kanji}</span>
+                <span class="reading">${item.reading}</span>
+                <button class="audio-btn" onclick="speak('${cleanKanji}')">🔊</button>
+                <span class="badge">重音 ${item.accent}</span>
+                <span class="badge">${item.type}</span>
+                <span class="badge" style="background:#4a90e2; color:white;">${item.level}</span>
+            </div>
+            
+            ${extraInfo}
+
+            <div class="section-title">📝 例句與文法解析</div>
+            <ul class="example-list">${examplesHTML}</ul>
+
+            <div class="btn-group">
+                <button class="action-btn btn-master" onclick="handleWordAction('master', ${item.id})">不再出現 (已熟練)</button>
+                <button class="action-btn btn-review" onclick="handleWordAction('review', ${item.id})">這次學好了 (下次再複習)</button>
+            </div>
+        </div>
+    `;
+}
+
+function handleWordAction(action, wordId) {
+    const today = new Date().toISOString().split('T')[0];
+    userStats.history[today] = (userStats.history[today] || 0) + 1;
+
+    if (action === 'master') {
+        userStats.mastered.push(wordId);
+    } else if (action === 'review') {
+        if (!userStats.quizWeights[wordId]) userStats.quizWeights[wordId] = 3;
+    }
+
+    saveData();
+    currentWordIndex++;
+    renderWordCard();
+    updateStatsUI();
+}
+
+function switchTab(tabName, btnElement) {
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.view-section').forEach(sec => sec.classList.remove('active'));
+    
+    if (btnElement) btnElement.classList.add('active');
+    document.getElementById(`${tabName}-section`).classList.add('active');
+
+    if (tabName === 'quiz') startQuiz();
+}
+
+let currentQuizItem = null;
+
+function startQuiz() {
+    const container = document.getElementById('quiz-content');
+    if (!container) return;
+
+    const pool = sampleDatabase.filter(item => userStats.quizWeights[item.id] !== undefined || userStats.mastered.includes(item.id));
+    
+    if (pool.length === 0) {
+        container.innerHTML = `<p>目前還沒有可測驗的內容，請先在「今日學習」中學習單字！</p>`;
+        return;
+    }
+
+    currentQuizItem = weightedRandomSelect(pool);
+    const quizType = Math.floor(Math.random() * 2);
+    const soundText = (quizType === 0 ? currentQuizItem.kanji : currentQuizItem.examples[0].jp).replace(/'/g, "\\'");
+
+    container.innerHTML = `
+        <h3>🎯 隨機測驗</h3>
+        <p><strong>題目：</strong> 請寫出「${quizType === 0 ? currentQuizItem.kanji : currentQuizItem.examples[0].zh}」的對應翻譯/讀音： 
+        <button class="audio-btn audio-btn-sm" onclick="speak('${soundText}')">🔊</button>
+        </p>
+        <input type="text" id="quiz-answer" placeholder="請在此輸入答案..." autocomplete="off">
+        <button class="action-btn btn-submit" onclick="checkAnswer(${quizType})">提交答案</button>
+        <div id="quiz-feedback" class="feedback"></div>
+    `;
+}
+
+function weightedRandomSelect(pool) {
+    let expandedPool = [];
+    pool.forEach(item => {
+        let weight = userStats.quizWeights[item.id] || 1;
+        for (let i = 0; i < weight; i++) expandedPool.push(item);
+    });
+    return expandedPool[Math.floor(Math.random() * expandedPool.length)];
+}
+
+function checkAnswer(quizType) {
+    const userAns = document.getElementById('quiz-answer').value.trim();
+    const feedback = document.getElementById('quiz-feedback');
+    const wordId = currentQuizItem.id;
+
+    if (!userStats.quizWeights[wordId]) userStats.quizWeights[wordId] = 3;
+
+    let isCorrect = false;
+    if (quizType === 0 && (userAns === currentQuizItem.reading || userAns === currentQuizItem.examples[0].zh)) {
+        isCorrect = true;
+    } else if (quizType === 1 && (userAns === currentQuizItem.kanji || userAns === currentQuizItem.examples[0].jp)) {
+        isCorrect = true;
+    }
+
+    if (isCorrect) {
+        feedback.style.color = "var(--success-color)";
+        feedback.innerHTML = "⭕ 回答正確！該題出現機率已降低。";
+        userStats.quizWeights[wordId] = Math.max(1, userStats.quizWeights[wordId] - 1);
+    } else {
+        feedback.style.color = "red";
+        feedback.innerHTML = `❌ 回答錯誤！正確參考答案：${currentQuizItem.kanji} (${currentQuizItem.reading})。該題出現機率已增加。`;
+        userStats.quizWeights[wordId] += 2;
+    }
+
+    saveData();
+    setTimeout(startQuiz, 2500);
+}
+
+function updateStatsUI() {
+    const today = new Date().toISOString().split('T')[0];
+    const statToday = document.getElementById('stat-today');
+    const statMastered = document.getElementById('stat-mastered');
+    if (statToday) statToday.innerText = userStats.history[today] || 0;
+    if (statMastered) statMastered.innerText = userStats.mastered.length;
+}
+
+/* 📥 匯出紀錄邏輯 */
+function exportData() {
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(userStats, null, 2));
+    const downloadAnchor = document.createElement('a');
+    const fileName = `japanese_learning_backup_${new Date().toISOString().split('T')[0]}.json`;
+    
+    downloadAnchor.setAttribute("href", dataStr);
+    downloadAnchor.setAttribute("download", fileName);
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+}
+
+/* 📤 匯入紀錄邏輯 */
+function importData(event) {
+    const fileReader = new FileReader();
+    fileReader.onload = function(e) {
+        try {
+            const importedStats = JSON.parse(e.target.result);
+            if (importedStats && typeof importedStats === 'object') {
+                userStats = importedStats;
+                saveData();
+                alert('🎉 學習紀錄匯入成功！');
+                location.reload();
+            } else {
+                alert('⚠️ 無效的紀錄檔案格式！');
+            }
+        } catch (error) {
+            alert('⚠️ 讀取檔案失敗，請確認是否上傳正確的 JSON 檔案！');
+        }
+    };
+    fileReader.readAsText(event.target.files[0]);
+}
+
+// 唯一入口：等待畫面準備好後執行 init
+window.onload = function() {
+    init();
+};
+</script>
+</body>
+</html>
